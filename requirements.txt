@@ -3,3 +3,5 @@ pandas
 matplotlib
 sklearn
 xgboost
+tensorflow
+keras
