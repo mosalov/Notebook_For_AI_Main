@@ -1,0 +1,6 @@
+datalore-env-format-version: "0.2"
+datalore-package-manager: "pip"
+datalore-base-env: "default"
+dependencies:
+datalore-env-git-repos:
+- https://github.com/keras-team/keras.git@master
