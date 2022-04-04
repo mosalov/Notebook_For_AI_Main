@@ -1,0 +1,88 @@
+#### биндер не работает, что-то про переполнение памяти, до сдачи совсем чуть чуть,
+#### так что приходится так, прошу прощения
+####
+
+# Задание №1 - решение задачи классификации.
+# В качестве входных параметров используем все числовые параметры,
+# в качестве выходного - единственный категориальный параметр.
+
+x_labels = num_columns
+y_labels = list(range(7))
+print(x_labels)
+print(y_labels)
+
+# Отберем необходимые параметры
+x_train = sc_train[x_labels]
+x_test = sc_test[x_labels]
+x_val = sc_val[x_labels]
+y_train = sc_train[y_labels]
+y_test = sc_test[y_labels]
+y_val = sc_val[y_labels]
+
+y_train
+
+column_names = num_columns + list(range(7))
+y_train.columns = column_names
+y_test.columns = column_names
+y_val.columns = column_names
+
+x_labels = num_columns[:-1]
+y_labels = num_columns[-1]
+print(x_labels)
+print(y_labels)
+
+# Создадим нейроннную сеть для решения задачи регрессии на базе библиотеки sklearn
+reg = MLPRegressor(alpha=0.0, batch_size=16, epsilon=1e-07, max_iter=50)
+reg.get_params()
+
+# Обучим нейронную сеть
+reg.fit(x_train, y_train)
+pred_val = reg.predict(x_val)
+mse1 = mean_squared_error(y_val, pred_val)
+print(mse1)
+
+############ с sklearn закончили, должна вывестись метрика, но увы не в блакноте
+############ далее работаем с keras
+
+
+model = Sequential()
+model.add(Dense(100, input_dim=5, activation='relu', use_bias=False))
+model.add(Dense(1, activation='linear', use_bias=False))
+model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_squared_error'])
+model.summary()
+
+history = model.fit(x_train, y_train, validation_data = (x_val, y_val), epochs=50, batch_size=16, verbose=0)
+
+pred_val2 = model.predict(x_val)
+mse2 = mean_squared_error(y_val, pred_val2)
+print(mse2)
+
+############ тут получили еще одно значение, сравниваем и находим наиболее удачную модель в требуемой библиотеке.
+
+
+###########
+########### Задание 2
+########### Модель без дроп аут слоя есть, теперь работает с дропаутом
+
+drop = Sequential()
+drop.add(Dense(100, input_dim=5, activation='relu', use_bias=False))
+drop.add(Dropout(rate=0.5))
+drop.add(Dense(1, activation='linear', use_bias=False))
+drop.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_squared_error'])
+drop.summary()
+
+history = drop.fit(x_train, y_train, validation_data = (x_val, y_val), epochs=50, batch_size=16, verbose=0)
+
+########## тут вобщем то и надо параметры настроить, но не в этот раз
+
+pred_val3 = drop.predict(x_val)
+mse3 = mean_squared_error(y_val, pred_val3)
+print(mse3)
+
+########## на валидационной выборке ошибку нашли, теперь на тестовой, и сравним где лучше
+
+pred_test = model.predict(x_test)
+mse4 = mean_squared_error(y_test, pred_test)
+print(mse3, mse4)
+
+########## видим, что ничего не видим. Биндер приказал долго жить. 
